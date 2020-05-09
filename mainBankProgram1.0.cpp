@@ -1,7 +1,17 @@
-//(1) The name of the program: Program #2 (Banking Account Balance Software)//
+//(1) The name of the program: Program #3 (Banking Account Balance Software)//
 //(2) The name of the programmer: John Wilson//
-//(3) The date of the program: 08 Apr 2019//
-//(4) A brief description of the purpose of the program: Make an efficient banking software that shows balance//
+//(3) The date of the program: 29 Apr 2019//
+//(4) A brief description of the purpose of the program: Make an efficient banking software that ensures:
+// no transaction is completed or process more than 5 times; limit reached shut down.
+// all entries are positive
+// a fee of $2.50 is added to deposit over $50
+// a fee of $.25 is deducted after each withdrawal
+// each transaction can be processed based on the balance
+// Report negative balances; limit reached shut down services
+// no more than $1000.00 is withdrawn during any daily transaction; limit reached shut down services
+// Alerts the user to the number of times all transactions were completed upon exiting (remember, available balance)
+// no account has more than $3495.99 in it at any given time; limit reached shut down services
+// place an extra selection for user to access a statement that show date, user name, transactions and amounts.
 #include <iostream>
 #include <fstream>
 #include <iomanip>
@@ -13,26 +23,22 @@
 using namespace std;
 
 //++==These are the string statements used for the class functions or other function in the main section.==++//
-    std::string choice;
 
 	std::string months[] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", //++Needed for the date function to operate.++//
                         "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
     std::string days[] = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri",    //++Needed for the date function to operate.++//
                       "Sat"};
-
 //////+++++++++++Function pulls date from the computer.++++++++++++++++++/////////////
-    class Date
+    class Date1
     {
-
     private:                          //++Private Members++//
         std::string month;
         std::string day;
         int date;
         int year;
 
-    public:                           //++Default Constructor++//
-
-        Date()
+    public:                     //++Default Constructor++//
+          Date1()
         {
                 const int BASE_YEAR = 1900;
                 time_t timer;
@@ -44,175 +50,292 @@ using namespace std;
                 day = days[time->tm_wday];
                 year = time->tm_year + BASE_YEAR;
         }
-        void printDate()
+        void printDate1()
         {
             std::cout << "=+=+=+=+=+=+=+=+=+=+=+=Todays Date: "
                       << this->month << " " << this->day << " "
                       << this->date  << " " << this->year <<"=+=+=+=+=+=+=+=+=+=+=+=\n\n";
         }
 
-        ~Date() {}                    //++Destructor
+        ~Date1() {}                    //++Destructor
     };
 
+    class Date2
+    {
+    private:                          //++Private Members++//
+        std::string month;
+        std::string day;
+        int date;
+        int year;
+
+    public:                           //++Default Constructor++//
+        Date2()
+        {
+                const int BASE_YEAR = 1900;
+                time_t timer;
+                tm * time;
+                std::time(&timer);
+                time = localtime(&timer);
+                date = time->tm_mday;
+                month = months[time->tm_mon];
+                day = days[time->tm_wday];
+                year = time->tm_year + BASE_YEAR;
+        }
+        void printDate2()
+        {
+            std::cout << "Todays Date: "
+                      << this->month << " " << this->day << " "
+                      << this->date  << " " << this->year <<"\n\n";
+        }
+        ~Date2() {}                    //++Destructor
+    };
 //++==This is a user defined data hub that holds specific functions.==++//
     class BankingAccount
     {
 //++==anything created in the public area can be used outside the class.==++//
         public:
-
             BankingAccount()
             {
-                depAmount = 0;
                 depTally = 0;
-                withAmount = 0;
                 withTally = 0;
-                ATMAmount = 0;
-                ATMFee = 3.00;
                 ATMTally = 0;
-                mnthFee = 12.50;
                 mnthTally = 0;
-                runBalance;
-                totalFees = 0;
+                totalFees = 0.00;
                 staTally = 0;
                 totTally = 0;
-                acctBalance = 0;
+                acctBalance = 0.00;
             }
 //++==all of these voids specific functions built for the program.==++//
-            void initbalance(float W) {runBalance = W;}
-            void calcDep (float);
-            void calcWith (float);
-            void calcATM (float);
-            void calcFees (float);
-            void calcBal (float);
-            void calcMnthFee (float);
-            void displayATMFee ();
+            void calcDep (double);
+            void calcWith (double);
+            void calcATM (double);
+            void calcFees (double);
+            void calcBal (double);
+            void calcMnthFee (double);
+            void displayATMFee (double);
             void displayFees ();
             void displayBalance ();
             void displaySummary ();
+
             void showMenu();
-            void balAlert ();
+
 
 //++==anything in this area cannot be used outside of the class.==++//
         private:
 
             char name;
-            float runBalance = 1576.36 , totalFees, ATMAmount, ATMFee = 3.00, mnthFee = 12.50, depAmount, withAmount, acctBalance, num, num1, num2, num3;
-            int depTally, withTally, ATMTally, mnthTally, staTally, totTally;
-
+            double depLimit = DPL, dailyLimit = DL, initbalance = IB, runBalance = RB, totalFees, ATMAmount = AA, ATMFee = AF, mnthFee = MF, depFee = DF, depAmount = DA, withFee = WF, withAmount = WA, acctBalance = AB;
+            double DPL = 10000.00, DL = 1000.00, IB = 2372.36, AF = 3.00, MF = 12.50, RB = 0.00, AB = IB + RB, DF = 2.50, DA = 0.00, WF = 0.25, WA = 0.00, AA = 0.00;
+            float depTally, withTally, ATMTally, mnthTally, staTally, totTally;
 	};
 //++==These functions list the instructions for later use in the main area.==++//
-                void showMenu()
-        {
+            void BankingAccount::showMenu()
+            {
             cout<< "Please make a choice below: \n";
             cout << "For Deposits, Enter [1]. \n";
             cout << "For Withdrawals, Enter [2]. \n";
             cout << "For ATM Withdrawals, Enter [3]. \n";
             cout << "For Banking Fees, Enter [4]. \n";
-            cout << "For Banking Balance, Enter [5]. \n";
+            cout << "For Banking Statement, Enter [5]. \n";
             cout << "To Exit, Enter [6]. \n\n";
             }
 
-        void BankingAccount::calcDep(float amount)
+        void BankingAccount::calcDep(double DA)
         {
-            runBalance +=amount;
-            ++depTally;
-            ++totTally;
-        }
+            if (DA <= 50.00)
+            {
+                AB += DA;
+                cout << "You made a deposit of: (+)$"<< DA << "\n";
+                ++depTally;
+                ++totTally;
+            }
+            else if (DA > 50.00)
+            {
+               AB += DA - DF;
+                cout << "You made a deposit of: (+)$"<< DA << "\n";
+                cout << "and a deposit fee(s) of (-)$" << DF << " was subtracted from the account balance because it was over $50.00. \n\n";
+                ++depTally;
+                ++totTally;
+            }
+          }
 
-        void BankingAccount::calcWith (float amount)
+        void BankingAccount::calcWith (double WA)
         {
-            runBalance -=amount;
+            AB -= WA + WF;
+            cout << "Withdrawal of: (-)$"<< WA <<"\n";
+            cout << "Plus a withdrawal fee of: (-)$"<<WF<<"\n";
             ++withTally;
             ++totTally;
+            ++WA;
+
+            if (AB < 999.99 && AB > 500.00)
+            {
+                cout << "Your account balance is below $1000.00. \n";
+            }
+
+            else if (AB < 499.99 && AB > 250.00)
+            {
+                cout << "Your account balance is below $500.00. \n";
+            }
+
+            else if (AB < 249.99 && AB > .01)
+            {
+                cout <<"Your account balance is below $250.00. \n";
+            }
+
+            else if (AB == 0)
+            {
+                cout <<"Your account balance is below $0 and therefore broke. \n";
+            }
         }
-        void BankingAccount::calcATM(float amount)
+        void BankingAccount::calcATM(double AA)
         {
-            runBalance -=amount - ATMFee;
+            AB -= AA + AF;
+            cout << "ATM Withdraw (-) of: $"<< AA <<"\n";
             ++ATMTally;
             ++totTally;
+
+             if (AB < 999.99 && AB > 500.00)
+            {
+                cout << "Your account balance is below $1000.00. \n";
+            }
+
+            else if (AB < 499.99 && AB > 250.00)
+            {
+                cout << "Your account balance is below $500.00. \n";
+            }
+
+            else if (AB < 249.99 && AB > .01)
+            {
+                cout <<"Your account balance is below $250.00. \n";
+            }
+
+            else if (AB == 0)
+            {
+                cout <<"Your account balance is below $0 and therefore broke. \n";
+            }
         }
 
-        void BankingAccount::calcMnthFee(float amount)
+        void BankingAccount::calcMnthFee(double MA)
         {
-            runBalance -=amount - mnthFee;
+            AB -= MA + MF;
+            cout << "ATM Withdraw (-) of: $"<< MA <<"\n\n";
             ++mnthTally;
             ++totTally;
+
+             if (AB < 999.99 && AB > 500.00)
+            {
+                cout << "Your account balance is below $1000.00. \n";
+            }
+
+            else if (AB < 499.99 && AB > 250.00)
+            {
+                cout << "Your account balance is below $500.00. \n";
+            }
+
+            else if (AB < 249.99 && AB > .01)
+            {
+                cout <<"Your account balance is below $250.00. \n";
+            }
+
+            else if (AB == 0)
+            {
+                cout <<"Your account balance is below $0 and therefore broke. \n";
+            }
         }
 
-        void BankingAccount::calcFees(float amount)
+        void BankingAccount::calcFees(double amount)
         {
             mnthFee += (int (depTally));
             ATMFee += (int (ATMTally));
 
             cout << endl  << endl << "Bank fees include: " << endl;
-            cout << "$12.50 Monthly Banking Fee." << endl;
+            cout << "$12.50 Monthly Banking Fee." << endl << endl;
             cout << "$3.00 ATM Fee." << endl << endl;
-
-            cout << "So far, you've made " << depTally << " deposits, in the amount of $" << depAmount << "." << endl;
-            cout << "You've made " << withTally << " check withdrawals, in the amount of $" << withAmount << "." << endl;
-            cout << "You've made " << ATMTally << " ATM withdrawals, ATM Fees in the amount of $ " << ATMFee << "." << endl;
-            cout << "You've made " << mnthTally << " Paid monthly banking fees, in the amount of $ " << mnthFee << "." <<endl;
-
-            totalFees =+ ATMFee + mnthFee + depAmount +withAmount;
-            cout << "In total, you've made " << totTally << " transactions, amounting in $" << totalFees << " in banking fees." << endl << endl;
+            cout << "$2.20 Fee for deposits over $50." << endl << endl;
+            cout << "$0.25 Fee for each withdrawal." << endl << endl;
+            cout << "You've made " << depTally << " deposit(s), in the amount of $" << DA <<", and recurring deposit(s) fees in the amount of $"<< DF << " for your deposit(s) over $50.00." << endl;
+            cout << "You've made " << withTally << " withdrawal(s), in the amount of $" << WA << ", and recurring withdrawal(s) fees in the amount of $"<< WF << " " << endl;
+            cout << "You've made " << ATMTally << " ATM withdrawal(s), in the amount of $" << AA << " with an additional ATM Fee(s) in the amount of $ " << AF << "." << endl;
+            cout << "You've made " << mnthTally << " paid monthly banking fee(s), in the amount of $ " << MF << "." <<endl;
+            cout << "In total banking fee(s), you've made " << totTally << " transaction(s), amounting in banking fee(s) of $" << totalFees << "." << endl << endl;
+            totalFees += AF + MF + WF +DF;
         }
         void BankingAccount::displayFees()
         {
-            cout << "Total Banking Fee Balance: " << setprecision(2) << fixed << runBalance << endl << endl;
+            cout << "Your Monthly Banking Fees are listed below: \n\n";
+            cout << "Total Monthly Banking Fee is $" << MF << "." << endl;
+            cout << "Total Deposit Fees are $" << DF << " if deposit is over $50." << endl;
+            cout << "Withdraw Fees are $" << WF << "." << endl;
+            cout << "ATM Fees are: $"<< AF << " for each ATM withdraw." << endl;
+
         }
         void BankingAccount::displayBalance()
         {
-            cout << "Total Balance: " << setprecision(2) << fixed << runBalance << endl << endl;
+            cout << "New Account Balance is: " << AB << endl << endl;
+
+            if (AB < 999.99 && AB > 500.00)
+            {
+                cout << "Your account balance is below $1000.00. \n";
+            }
+
+            else if (AB < 499.99 && AB > 250.00)
+            {
+                cout << "Your account balance is below $500.00. \n";
+            }
+
+            else if (AB < 249.99 && AB > .01)
+            {
+                cout <<"Your account balance is below $250.00. \n";
+            }
+
+            else if (AB == 0)
+            {
+                cout <<"Your account balance is below $0 and therefore broke. \n";
+            }
         }
         void BankingAccount::displaySummary()
         {
             cout << "Thank you for stopping by Thieves Bank! Here is a summary of your transactions." <<endl;
-            cout << "you were deduced " <<totTally<< " in bank fees.";
+            cout << "you were deduced " <<MF<< " in bank fees.";
         }
-        void BankingAccount::balAlert()
-        {
-        for (num = 1000; num <= 1000; num++)
-            cout << "Your account balance is below $1000.00. \n";
-            cout <<"Please make another choice. \n";
-
-        for (num1 = 500; num1 <= 500; num1++)
-            cout << "Your account balance is below $500.00. \n";
-            cout <<"Please make another choice. \n";
-
-        for (num2 = 250; num2 <= 250; num2++)
-            cout <<"Your account balance is below $250.00. \n";
-            cout <<"Please make another choice. \n";
-
-        for (num3 = 0; num3 <= 0; num3++)
-            cout <<"Your account balance is below $0. \n";
-            cout <<"Please make another choice. \n";
-        }
-
 //++==This is where the program lies.==++//
 int main ()
 {
-
 //++==These are the question strings i used to help the make the functions run a little bit more smoothly (hopefully).==++//
     char question1 [] = "What is your first name? ";
     string question2 = "What is your last name? ";
     char answer1 [25];
     string answer2;
+    char question2a [] = "You have put in a negative number please try again. \n";
+    string answer2a [25];
+    char questionc3a [] = "Using your ATM card will cost an additional $3.00 to you transaction. \n";
+    string questionc3b = "Would you like to continue? [Yes or No]? ";
     string questionc3c = "How much do you want to Withdraw from your account? \n";
     char answerc3a;
     string answerc3b;
+    char questionAB [] = "You have reached your ACCOUNT BALANCE limit of $3495.99; therefore, this banking session will terminate. Thank you for believing in Thieves Bank!! \n";
 
 //++==These name the type of variables like char, int, float.==++//
     char choice, answer, customerName, firstName [25], lastName[25];
-    int option, next;
-    char Y, N, y, n, YES, NO, Yes, No, yes, no;
-	float initialAmount, displayBalance, num, num1, num2, num3;
-	float amount, runBalance;
-//++==This is the function giving the classess a variable inorder to identify and tie the specific class functions.==++//
-        Date d;
+    int option, next, totTally, t = 0, tally;
+    char Y, N, y, n, YES, NO, Yes, No, yes, no, c3;
+	double initialAmount, displayBalance, amount = 0.0, DA = 0.00, AA = 0.00, WA = 0.00, answer5 [5];
+	double  DPL = 10000.00, DL = 1000.00, IB = 2372.36, AF = 3.00, MF = 12.50, RB = 0.00, AB = IB + RB;
+//++==This is the function giving the classes a variable to identify and tie the specific class functions.==++//
+        Date1 d;
+        Date2 e;
         BankingAccount b;
 //++==This is the function that prints the date at the top of the program.==++//
-        d.printDate();
+        d.printDate1();
 //++==This is the introduction screen I tried to make pleasing to the eye.==++//
+        cout<<"++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
+        cout<<"++++++++++++++++++++++++++++++++++++  ++++++++++++++++++++++++++++++++++++\n";
+        cout<<"++++++++++++++++++++++++++++++++          ++++++++++++++++++++++++++++++++\n";
+        cout<<"++++++++++++++++++++++++++++                  ++++++++++++++++++++++++++++\n";
+        cout<<"++++++++++++++++++++++++                          ++++++++++++++++++++++++\n";
+        cout<<"++++++++++++++++++++                                  ++++++++++++++++++++\n";
+        cout<<"++++++++++++++++                                          ++++++++++++++++\n";
         cout<<"++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
         cout<<"++====================Welcome to the Bank of Thieves====================++\n";
         cout<<"++========Where paying loans is as easy as robbing your neighbor========++\n";
@@ -221,7 +344,14 @@ int main ()
         cout<<"++==========Phone(555)867-9305==email-Thieves@stealurmoney.com==========++\n";
         cout<<"++======================================================================++\n";
         cout<<"++====Please follow the instructions on the next screen to continue=====++\n";
-        cout<<"++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n\n";
+        cout<<"++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
+        cout<<"++++++++++++++++                                          ++++++++++++++++\n";
+        cout<<"++++++++++++++++++++                                  ++++++++++++++++++++\n";
+        cout<<"++++++++++++++++++++++++                          ++++++++++++++++++++++++\n";
+        cout<<"++++++++++++++++++++++++++++                  ++++++++++++++++++++++++++++\n";
+        cout<<"++++++++++++++++++++++++++++++++          ++++++++++++++++++++++++++++++++\n";
+        cout<<"++++++++++++++++++++++++++++++++++++  ++++++++++++++++++++++++++++++++++++\n";
+        cout<<"++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
 
 //++==This is the beginning of the choice process for the program.==++//
         cout <<question1;
@@ -230,118 +360,175 @@ int main ()
         cin  >>answer2;
         cout <<"Welcome to the Bank of Thieves "<<answer1 <<" "<< answer2<< "\n\n";
 
-    do //++==This is the beginning of a loop statement for the choice menu. I did this to help the user make a yes or no decision as to make another transaction.==++//
+    for (tally = 1; tally < 6; tally = tally ++) //This is the beginning of the control loop that will only allow 5 transactions per session.
     {
-        showMenu ();
+        b.showMenu ();
         cout << "Please enter a choice: ";
         cin>> next;
+        cout << "You have a total of five transactions for this session before the program involuntarily shuts down. \n";
+        cout << "You have completed " << tally <<" of 5 transactions thus far. \n";
+        tally++;
+
 //++==this is the case option string that will allow the user to choose what they want to do.==++//
             switch (next)
             {
 //++==This is the deposit case and it ties to the functions within the Banking Account Class. ==++//
                 case 1:
+
                     cout << "\n [[[DEPOSIT]]] \n";
-                    cout << "\n How much would you like to deposit? "<< answer1<< " " << answer2 << "\n";
-                    cin >> amount;
-                    b.calcDep(amount); b.displayBalance();
-                    cout << "Would you like to make another transaction "<< answer1<< " " << answer2 << "? [Y/N]? \n";
-                    cin >> answer;
-                    if (answer == 'Y' || answer == 'y' || answer == 'Yes' || answer == 'YES')
+                    cout << "\n How much would you like to deposit? \n";
+                    cin >> DA;
+                    if (DA < 0) //beginning of a negative number while loop.
+                    {
+                        cout << question2a << "\n";
+                    }
+                    else if (DA > 3495.99)
+                    {
+                        cout <<questionAB << "\n";
+                    }
+                    else if (DA < 3495.99)
+                    {
+                        b.calcDep(DA); b.displayBalance(); e.printDate2();
+                        cout << "Would you like to make another transaction "<< answer1<< " " << answer2 << "? Yes or No [Y/N]? \n";
+                        cin >> answer;
+                    }
+
+                    if (answer == 'Y' && answer == 'y')
+                    {
+                        continue;
+                    }
+
+                    if (answer == 'N' && answer == 'n')
                     {
                         break;
                     }
-                break;
+                    break;
 
 //++==This is the withdraw case and it ties to the functions within the Banking Account Class. ==++//
                 case 2:
                     cout << "\n [[[WITHDRAW]]] \n";
-                    cout << "\n How much would you like to withdraw? "<< answer1<< " " << answer2 << "\n";
-                    cin >> amount;
-                    b.calcWith(amount); b.displayBalance();
-
-                    if (b.acctBalance == 1000.00, b.acctBalance <= 1000.00, b.acctBalance++)
-                        cout << "Your account balance is below $1000.00." <<"Please make another choice. \n";
-
-                    else if (num1 == 500.00, num1 <= 500.00, num1++)
-                        cout << "Your account balance is below $500.00." <<"Please make another choice. \n";
-
-                    else if (num2 == 250.00, num2 <= 250.00, num2++)
-                        cout <<"Your account balance is below $250.00." <<"Please make another choice. \n";
-
-                    else if (num3 == 0.00, num3 <= 0.00, num3++)
-                        cout <<"Your account balance is below $0." <<"Please make another choice. \n";
-                        break;
-
-                    cout << "Would you like to make another transaction "<< answer1<< " " << answer2 << "? [Y/N]? \n";
-                    cin >> answer;
-                    if (answer == 'Y' || answer == 'y' || answer == 'Yes' || answer == 'YES') //++== beginning of the decision 'if else' statement.==++//
+                    cout << "\n How much would you like to withdraw? \n";
+                    cin >> WA;
+                    if (AB < WA)
                     {
-                        break;
+                    cout << "This transaction exceeds the total balance you have in the account of: " <<AB<<" !!\n\n";
+                    cout <<"Please make another selection!!\n\n";
+                    break;
+                    };
+
+                    if (WA < 0) //beginning of a negative number while loop.
+                    {
+                        cout << question2a << "\n\n";
                     }
-                break;
+                    else if (WA > 0 )
+                    {
+                        b.calcWith(WA); b.displayBalance(); e.printDate2();
+                        cout << "Would you like to make another transaction "<< answer1<< " " << answer2 << "? Yes or No [Y/N]? \n";
+                        cin >> answer;
+                    }
+
+                    else if (answer == 'Y' && answer == 'y' && answer == 'Yes' && answer == 'YES')
+                    {
+                        continue;
+                    }
+                    break;
 
 //++==This is the ATM Withdraw case and it ties to the functions within the Banking Account Class. ==++//
                 case 3:
                     cout << "\n [[[ATM Withdraw]]] \n";
-                    cout <<questionc3c << answer1<< " " << answer2 << "\n";
-                    cin >> amount;
-                    b.calcATM(amount); b.displayBalance();
-                    cout << "Would you like to make another transaction "<< answer1<< " " << answer2 << "? [Y/N]? \n";
+                    cout <<questionc3a;
+                    cout <<questionc3b;
                     cin >> answer;
-                    if (answer == 'Y' || answer == 'y' || answer == 'Yes' || answer == 'YES') //++== beginning of the decision 'if else' statement.==++//
+                    while (answer == 'Y' || answer == 'y') //++== beginning of the decision 'if else' statement.==++//
+                    {
+                            cout <<questionc3c;
+                            cin >> AA;
+
+                    if (AB < AA)
+                    {
+                    cout << "This transaction exceeds the total balance you have in the account of: " <<AB<<" !!\n\n";
+                    cout <<"Please make another selection!!\n\n";
+                    break;
+                    }
+
+                    if (AA < 0) //beginning of a negative number while loop.
+                    {
+                        cout << question2a << "\n\n";
+                    }
+                    else if (AA > 0 )
+                    {
+                            b.calcATM(AA); b.displayBalance(); e.printDate2();
+                            cin.clear();
+                            cout << "Would you like to make another transaction "<< answer1<< " " << answer2 << "? Yes or No [Y/N]? \n";
+                            cin >> answer;
+                    }
+                        if (answer == 'Y' && answer == 'y') //++== beginning of the decision 'if else' statement.==++//
                     {
                        break;
                     }
-                break;
+                        }
+                    break;
 
 //++==This is the Banking Fees case and it ties to the functions within the Banking Account Class. ==++//
                 case 4:
                     cout << "\n [[[Banking Fees]]] \n";
-                    cout <<"\n Here is the list of your Banking Fees "<< answer1<< " " << answer2 << "\n";
-                    b.calcFees(amount); b.displayFees ();
-                    cout << "Would you like to make another transaction "<< answer1<< " " << answer2 << "? [Y/N]? \n";
+                    b.calcFees(amount); b.displayFees (); e.printDate2();
+                    cout << "Would you like to make another transaction "<< answer1<< " " << answer2 << "? Yes or No [Y/N]? \n";
                     cin >> answer;
-                    if (answer == 'Y' || answer == 'y' || answer == 'Yes' || answer == 'YES') //++== beginning of the decision 'if else' statement.==++//
+                    if (answer == 'Y' && answer == 'y') //++== beginning of the decision 'if else' statement.==++//
                     {
-                    break;
+                    continue;
                     }
-                break;
-
+                    else if (answer && 'N' || answer && 'n')
+                    {
+                        cout << "Thank you for stopping by Thieves Bank "<< answer1<< " " << answer2 << "! \n\n";
+                        cout << "We hope you have a wonderful day! \n\n";
+                        continue;
+                    }
+                    break;
 //++==This is the Banking balance case and it ties to the functions within the Banking Account Class. ==++//
                 case 5:
-                    cout <<"\n [[[Banking Balance]]] \n";
-                    cout <<" Here is your Banking Fees "<< answer1<< " " << answer2 << "\n";
-                    b.displayBalance();
-                    cout << "Would you like to make another transaction "<< answer1<< " " << answer2 << "? [Y/N]? \n";
+                    cout <<"\n [[[Banking Statement]]] \n";
+                    cout <<"Your banking statement is listed below "<<answer1 <<" "<<answer2 << ". \n";
+                     b.calcDep(DA); b.calcWith(WA); b.calcATM(AA); b.displayFees(); b.displayBalance (); e.printDate2();
+                    cout << "Would you like to make another transaction "<< answer1<< " " << answer2 << "? Yes or No [Y/N]? \n";
                     cin >> answer;
-                    if (answer == 'Y' || answer == 'y' || answer == 'Yes' || answer == 'YES') //++== beginning of the decision 'if else' statement.==++//
+                    if (answer == 'Y' && answer == 'y') //++== beginning of the decision 'if else' statement.==++//
                     {
-                        break;
+                        continue;
                     }
-                 break;
+                    else if (answer == 'N' && answer == 'n')
+                    {
+                        cout << "Thank you for stopping by Thieves Bank "<< answer1<< " " << answer2 << "! \n\n";
+                        cout << "We hope you have a wonderful day! \n\n";
+                    }
+                    break;
 //++==This is the Exit case and exits the choice menu. ==++//
                 case 6:
                     cout << "[[[Exit]]] \n";
-                    cout << "Thank you for stopping by "<< answer1<< " " << answer2 << "! Here is a summary of your transactions. \n";
-                    b.displayBalance ();
-                break;
+                    cout << " Are you sure you want to exit "<< answer1<< " " <<answer2 << "? Yes or No [Y/N]? \n\n";
+                    cin >> answer;
+                     if (answer == 'Y' || answer == 'y') //++== beginning of the decision 'if else' statement.==++//
+                    {
+                        cout << "Thank you for stopping by "<< answer1<< " " << answer2 << ". \n";
+                        b.displayBalance (); e.printDate2();
+                        break;
+                    }
+
+                    else if (answer == 'N' && answer == 'n')
+                    {
+                        continue;
+                    }
 
 //++==This is the default statement case and is the statement that pops up if you make a wrong entry. ==++//
                 default:
-
                     cout << "Invalid selection. Please, try again." << endl << endl;
+                    break;
         }
-
-	}while (answer != 'N'); //++==This if the end of the loop statement.==++//
-
-
-        (next == 'Y' || next == 'y');
-
-
-	if (next == 'N' || next == 'n')
-	{
-		cout << "Report ending balance, total deposits, total withdrawals, and total fees.";
-	}
-	return 0;
-            }
-
+}
+        cout << answer1<< " " << answer2 << ", you have reached your session limit of five. \n";
+        cout << "So 'END OF LINE' (famous quote from the movie TRON (1982), which means your session was terminated.) \n";
+        cout << "Here is a summary of your transactions: \n";
+        b.calcDep(DA); b.calcWith(WA); b.calcATM(AA); b.displayFees(); b.displayBalance (); e.printDate2();
+        return 0;
+}
